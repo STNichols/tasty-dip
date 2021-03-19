@@ -13,8 +13,6 @@ import matplotlib.colors as colors
 def collect_option_data(ticker, year, month, day, strict=True):
     """ Collect the option data for the given date """
     
-    date = datetime.datetime(year=year, month=month, day=day)
-
     dates = []
     strikes = []
     prices = []
@@ -22,9 +20,17 @@ def collect_option_data(ticker, year, month, day, strict=True):
     
     call_setup = False
     attempts = 0
+    print(strict)
     while not call_setup and attempts < 10:
         try:
             wc = Call(ticker, d=day, m=month, y=year, strict=strict)
+            
+            new_date = wc.expiration.split('-')
+            day = int(new_date[0])
+            month = int(new_date[1])
+            year = int(new_date[2])
+            date = datetime.datetime(year=year, month=month, day=day)
+            
             call_setup = True
         except:
             attempts += 1
@@ -54,15 +60,15 @@ def calculate_gains(strike_price, share_price, call_price, initial=None):
     cost = call_price * 100
     
     if initial:
-        n_contracts = initial / cost
-        net = gains * n_contracts
+        n_contracts = np.floor(initial / cost)
+        net = (gains * n_contracts) + (initial - cost * n_contracts)
     else:
         net = ((gains - cost) / cost) * 100
     
     return net
 
 
-def plot_option_percent_gain(ticker, year, month, day, strict_date=True):
+def plot_option_percent_gain(ticker, year, month, day, strict_date=True, data=None):
     """
     Plot mesh grid of scenarios for a given call option and the
     resulting percent gain
@@ -70,7 +76,8 @@ def plot_option_percent_gain(ticker, year, month, day, strict_date=True):
     
     fig, ax = plt.subplots()
     
-    data = collect_option_data(ticker, year, month, day, strict=strict_date)
+    if data is None:
+        data = collect_option_data(ticker, year, month, day, strict=strict_date)
     stock = Stock(ticker)
     current_price = stock.price
 
@@ -110,7 +117,7 @@ def plot_option_percent_gain(ticker, year, month, day, strict_date=True):
     return fig, ax
 
 
-def plot_option_asset_value(ticker, year, month, day, initial, strict_date=True):
+def plot_option_asset_value(ticker, year, month, day, initial, strict_date=True, data=None):
     """
     Plot mesh grid of scenarios for a given call option and the
     resulting asset value (exercised if ITM)
@@ -118,7 +125,8 @@ def plot_option_asset_value(ticker, year, month, day, initial, strict_date=True)
     
     fig, ax = plt.subplots()
     
-    data = collect_option_data(ticker, year, month, day, strict=strict_date)
+    if data is None:
+        data = collect_option_data(ticker, year, month, day, strict=strict_date)
     stock = Stock(ticker)
     current_price = stock.price
 
@@ -155,7 +163,7 @@ def plot_option_asset_value(ticker, year, month, day, initial, strict_date=True)
     # Plot mesh grid evaluating option results
     ax.set_ylabel('Stock Price ($)')
     ax.set_xlabel('Strike Price ($)')
-    cbar = fig.colorbar(c, ax=ax, extend='neither', orientation='vertical')
+    cbar = fig.colorbar(c, ax=ax, extend='neither', orientation='vertical', format='%1.2f')
     cbar.set_label('Value of Assets ($)')
 
     # Plot Current Price
