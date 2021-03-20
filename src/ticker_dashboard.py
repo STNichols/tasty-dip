@@ -31,10 +31,16 @@ if day_diff < 0:
 next_friday = TODAY + datetime.timedelta(days=day_diff)
 
 # Title
-st.title("Do I like the Stock?")
+col1, col2 = st.beta_columns((1, 2))
+col1.title("Do I like the Stock?")
+col2.image('imgs/wsb.jpg')
 
 # Column 1 inputs
-ticker = st.text_input('Ticker:')
+col1, col2, col3, col4 = st.beta_columns((3, 1, 1, 5))
+ticker = col1.text_input('Ticker:')
+if ticker == "GME":
+    col2.image('imgs/diamond.jpg')
+    col3.image('imgs/hands.jpg')
 
 # Check for Ticker
 if ticker:
@@ -44,7 +50,7 @@ if ticker:
     # Stock Information Section
     st.header(stock.name)
     
-    col1, col2, col3, col4 = st.beta_columns(4)
+    col1, col2, col3, col4, col5 = st.beta_columns(5)
     
     # Show Info
     col1.write('Current Price ($)')
@@ -65,19 +71,26 @@ if ticker:
     col4.write(f"${pc}")
     col4.write(f"{pcp} %")
     
+    if pc < 0:
+        col5.image('imgs/hanginthere.jpg')
+    else:
+        col5.image('imgs/rocket.jpg')
+    
     # Visualize
     st.line_chart(stock_data[['Date', 'Close', 'Low', 'High']].set_index('Date'))
     st.bar_chart(stock_data[['Date', 'Volume']].set_index('Date'), width=200)
     
     # Collect Options Information
-    st.title(f"Call Options: {ticker}")
+    col1, col2, col3 = st.beta_columns(3)
+    col1.title(f"Call Options: {ticker}")
+    col1.write('Cause stonks only go up')
+    col3.image('imgs/stonks.jpg')
     
     col1, col2 = st.beta_columns(2)
     option_date = col1.date_input("Call Option Expiration Date:", next_friday)
-    flex_date = col1.checkbox('Find closest date if not found')
-    strict_date = (not flex_date)
+    col1.write('(Defaults to closest available date)')
         
-    initial = col2.number_input('$ purchase of contracts:', value=1000.0, step=1000.0)
+    initial = col2.number_input('$ purchase of contracts:', value=10000.0, step=1000.0)
     col2.write('(Buy N contracts up to this amount)')
 
     # Collect initial date
@@ -86,7 +99,7 @@ if ticker:
     day = option_date.day
     
     # Collect the data
-    data = collect_option_data(ticker, year, month, day, strict=strict_date)
+    data = collect_option_data(ticker, year, month, day, strict=False)
     actual_date = data['date'][0]
     year = actual_date.year
     month = actual_date.month
@@ -94,16 +107,19 @@ if ticker:
     
     st.subheader(f"Options Date: {month}/{day}/{year}")
     
-    col1, col2 = st.beta_columns(2)
-    
-    col1.subheader('Percent Gain')
+    st.subheader('Percent Gain')
     pc_fig, pc_ax = plot_option_percent_gain(
         ticker, year, month, day, data=data
     )
-    col1.pyplot(pc_fig)
+    st.pyplot(pc_fig)
     
-    col2.subheader('Net Value of Assets')
+    st.subheader('Net Value of Assets')
+    st.write('(Note: Areas of no change may imply that no contracts' +
+             ' are available at that initial investment or strike price)')
     asset_fig, asset_ax = plot_option_asset_value(
         ticker, year, month, day, initial=initial, data=data
     )
-    col2.pyplot(asset_fig)
+    st.pyplot(asset_fig)
+    
+    st.image('imgs/loss.jpg')
+    st.subheader('(Not a financial advisor)')

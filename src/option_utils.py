@@ -9,6 +9,10 @@ from wallstreet import Stock, Call, Put
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
+# Constants
+FIG_WIDTH = 20
+FIG_HEIGHT = 6
+
 
 def collect_option_data(ticker, year, month, day, strict=True):
     """ Collect the option data for the given date """
@@ -74,7 +78,7 @@ def plot_option_percent_gain(ticker, year, month, day, strict_date=True, data=No
     resulting percent gain
     """
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
     
     if data is None:
         data = collect_option_data(ticker, year, month, day, strict=strict_date)
@@ -123,7 +127,7 @@ def plot_option_asset_value(ticker, year, month, day, initial, strict_date=True,
     resulting asset value (exercised if ITM)
     """
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(FIG_WIDTH, FIG_HEIGHT))
     
     if data is None:
         data = collect_option_data(ticker, year, month, day, strict=strict_date)
