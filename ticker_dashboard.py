@@ -27,7 +27,7 @@ st.set_page_config(layout="wide")
 # Find next Friday
 day_diff = FRIDAY_WEEKDAY - TODAY.weekday()
 if day_diff < 0:
-    day_diff = 7 - day_diff
+    day_diff = 7 + day_diff
 next_friday = TODAY + datetime.timedelta(days=day_diff)
 
 # Title

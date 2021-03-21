@@ -20,7 +20,6 @@ def collect_option_data(ticker, year, month, day, strict=True):
     dates = []
     strikes = []
     prices = []
-    prices_pc = []
     
     call_setup = False
     attempts = 0
@@ -44,7 +43,6 @@ def collect_option_data(ticker, year, month, day, strict=True):
         for cdata in wc.data:
             strikes.append(cdata['strike'])
             prices.append(cdata['lastPrice'])
-            prices_pc.append(cdata['percentChange'])
             dates.append(date)
 
     data = pd.DataFrame({'date':dates, 'price':prices, 'strike':strikes})
